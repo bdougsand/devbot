@@ -1,0 +1,23 @@
+* DevBot
+A simple Python server designed to be used with a Docker Hub webhook.
+
+*Note:* This does not work yet, since Docker Hub does not post the image tag to
+the web hook, and I need to find a workaround.
+
+* Requirements
++ Python >3.3
++ dtach
++ Docker Engine and Docker Compose
+
+Additionally, the server must be run as a user in the ~docker~ group. To add the
+current user:
+
+#+BEGIN_SRC bash
+sudo moduser -aG docker $(whoami)
+#+END_SRC
+
+* Usage
+
+#+BEGIN_SRC bash
+python3 start.py
+#+END_SRC
