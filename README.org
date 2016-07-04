@@ -1,12 +1,9 @@
 * DevBot
 A simple Python server designed to be used with a Docker Hub webhook.
 
-*Note:* This does not work yet, since Docker Hub does not post the image tag to
-the web hook, and I need to find a workaround.
-
 * Requirements
 + Python >3.3
-+ dtach
++ [[http://dtach.sourceforge.net][dtach]]
 + Docker Engine and Docker Compose
 
 Additionally, the server must be run as a user in the ~docker~ group. To add the
@@ -15,6 +12,14 @@ current user:
 #+BEGIN_SRC bash
 sudo moduser -aG docker $(whoami)
 #+END_SRC
+
+* Setup
+** Webserver Configuration
++ Install an SSL certificate
++ If you use a reverse proxy, add assign the client's original IP to the
+  X-Real-IP header.
+** Docker Hub Configuration
++ Add a webhook pointing to the public URL.
 
 * Usage
 

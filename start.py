@@ -44,7 +44,10 @@ def deploy_repo(repo):
         # TODO: Error handling
         subprocess.call([docker_compose, "stop"])
         subprocess.call([docker, "pull", repo])
-        subprocess.call([dtach_bin, "-n", socket, docker_compose, "up"])
+        if repo.get("dtach"):
+            subprocess.call([dtach_bin, "-n", socket, docker_compose, "up"])
+        else:
+            subprocess.call([docker_compose, "-d", "up"])
         # TODO: Check that the server has started
     finally:
         os.chdir(start_wd)
@@ -61,7 +64,10 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         # This must be set by the server!
-        client_host = self.headers.get("X-Real-IP")
+        client_host, _client_port = self.client_address
+        if client_host == "127.0.0.1":
+            client_host = self.headers.get("X-Real-IP")
+
         # This could also be handled by nginx, but eh.
         if not in_range(client_host):
             self.send_text("Invalid request origin " + client_host, status=401)
@@ -72,10 +78,16 @@ class RequestHandler(BaseHTTPRequestHandler):
             data = self.rfile.read(content_length)
             json_text = data.decode("utf-8")
             payload = json.loads(json_text)
-            print(payload)
+            repo = payload["repository"]["repo_name"]
+
+            if repo in config.REPOS:
+                # TODO: Did deployment succeed?
+                deploy_repo(repo)
+
             self.send_text("OK\n")
         except:
             self.send_text("NOK\n", status=500)
+
 
 def run():
     httpd = HTTPServer(config.ADDRESS, RequestHandler)
